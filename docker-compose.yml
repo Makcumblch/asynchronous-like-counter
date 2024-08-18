@@ -1,0 +1,25 @@
+services:
+  asynclikecounter-mongodb:
+    image: mongo:8.0.0-rc17-noble
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+    volumes:
+      - /home/makcumbl4/volume/asynclikecounter/mongodb:/data/db
+  asynclikecounter-mongoexpress:
+    image: mongo-express:1.0.2-20-alpine3.19
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_SERVER: asynclikecounter-mongodb
+      ME_CONFIG_MONGODB_PORT: 27017
+      ME_CONFIG_MONGODB_AUTH_USERNAME: ${MONGO_ROOT_USER}
+      ME_CONFIG_MONGODB_AUTH_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      ME_CONFIG_BASICAUTH_USERNAME: ${MONGOEXPRESS_LOGIN}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGOEXPRESS_PASSWORD}
+    depends_on:
+      - asynclikecounter-mongodb
