@@ -1,4 +1,5 @@
 services:
+
   asynclikecounter-mongodb:
     image: mongo:8.0.0-rc17-noble
     restart: always
@@ -9,6 +10,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
     volumes:
       - /home/makcumbl4/volume/asynclikecounter/mongodb:/data/db
+
   asynclikecounter-mongoexpress:
     image: mongo-express:1.0.2-20-alpine3.19
     restart: always
@@ -23,3 +25,16 @@ services:
       ME_CONFIG_BASICAUTH_PASSWORD: ${MONGOEXPRESS_PASSWORD}
     depends_on:
       - asynclikecounter-mongodb
+
+  asynclikecounter-rabbitmq:
+    image: rabbitmq:3.13.6-management
+    hostname: rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: -rabbit log_levels [{connection,error},{default,error}] disk_free_limit 2147483648
+    ports:
+      - 15672:15672
+    volumes:
+      - /home/makcumbl4/volume/asynclikecounter/rabbitmq:/var/lib/rabbitmq
