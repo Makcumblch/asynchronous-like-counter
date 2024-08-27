@@ -1,11 +1,11 @@
-import client from "./axios";
+import { clientIncrement, clientRead } from "./axios";
 
 class LikeCounterService {
   static Get = () => {
-    return client.get("/likes");
+    return clientRead.get("/likes");
   };
   static Increment = () => {
-    return client.post("/like/increment");
+    return clientIncrement.post("/like/increment");
   };
 }
 

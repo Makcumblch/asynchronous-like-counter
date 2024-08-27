@@ -19,7 +19,7 @@ export class LikeCounterStorage {
     LikeCounterService.Get().then((value) => {
       if (!value.data) return;
       runInAction(() => {
-        this.count = value.data;
+        this.count = value.data.likes;
       });
     });
   };

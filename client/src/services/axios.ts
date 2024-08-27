@@ -1,7 +1,9 @@
 import axios from "axios";
 
-const client = axios.create({
-  baseURL: "http://localhost:3000/api/v1/",
+export const clientIncrement = axios.create({
+  baseURL: "http://localhost:80/api/v1/s1/",
 });
 
-export default client;
+export const clientRead = axios.create({
+  baseURL: "http://localhost:80/api/v1/s2/",
+});
