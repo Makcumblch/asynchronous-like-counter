@@ -1,6 +1,6 @@
 services:
 
-  asynclikecounter-mongodb:
+  mongodb:
     image: mongo:8.0.0-rc17-noble
     restart: always
     ports:
@@ -11,22 +11,22 @@ services:
     volumes:
       - /home/makcumbl4/volume/asynclikecounter/mongodb:/data/db
 
-  asynclikecounter-mongoexpress:
+  mongoexpress:
     image: mongo-express:1.0.2-20-alpine3.19
     restart: always
     ports:
       - 8081:8081
     environment:
-      ME_CONFIG_MONGODB_SERVER: asynclikecounter-mongodb
-      ME_CONFIG_MONGODB_PORT: 27017
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_PORT: ${MONGO_PORT}
       ME_CONFIG_MONGODB_AUTH_USERNAME: ${MONGO_ROOT_USER}
       ME_CONFIG_MONGODB_AUTH_PASSWORD: ${MONGO_ROOT_PASSWORD}
       ME_CONFIG_BASICAUTH_USERNAME: ${MONGOEXPRESS_LOGIN}
       ME_CONFIG_BASICAUTH_PASSWORD: ${MONGOEXPRESS_PASSWORD}
     depends_on:
-      - asynclikecounter-mongodb
+      - mongodb
 
-  asynclikecounter-rabbitmq:
+  rabbitmq:
     image: rabbitmq:3.13.6-management
     hostname: rabbitmq
     restart: always
@@ -39,3 +39,47 @@ services:
       - ${RABBITMQ_PORT}:5672
     volumes:
       - /home/makcumbl4/volume/asynclikecounter/rabbitmq:/var/lib/rabbitmq
+
+  nginx:
+    build:
+      context: ./client/
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+
+  producer:
+    build:
+      context: ./server/
+      dockerfile: dockerfile.s1
+    ports:
+      - ${HTTP_PORT_PRODUCER}:3000
+    restart: always
+    environment:
+      HTTP_PORT_PRODUCER: 3000
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+      RABBITMQ_PORT: ${RABBITMQ_PORT}
+      RABBITMQ_IP: rabbitmq
+    depends_on:
+      - rabbitmq
+
+  consumer:
+    build:
+      context: ./server/
+      dockerfile: dockerfile.s2
+    ports:
+      - ${HTTP_PORT_CONSUMER}:3000
+    restart: always
+    environment:
+      HTTP_PORT_CONSUMER: 3000
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+      RABBITMQ_PORT: ${RABBITMQ_PORT}
+      RABBITMQ_IP: rabbitmq
+      MONGO_ROOT_USER: ${MONGO_ROOT_USER}
+      MONGO_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_IP: mongodb
+      MONGO_PORT: ${MONGO_PORT}
+    depends_on:
+      - rabbitmq
+      - mongodb
