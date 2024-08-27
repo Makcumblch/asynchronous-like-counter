@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/Makcumblch/asynchronous-like-counter/internal/app/consumer"
 	"github.com/Makcumblch/asynchronous-like-counter/internal/util/config"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -64,6 +65,38 @@ func NewRabbitmq(config config.RabbitConfig) *Rabbitmq {
 		channel:    ch,
 		queue:      &q,
 	}
+}
+
+func (r *Rabbitmq) StartConsume(app *consumer.ConsumerService) error {
+	msgs, err := r.channel.Consume(
+		r.queue.Name, // queue
+		"",           // consumer
+		false,        // auto-ack
+		false,        // exclusive
+		false,        // no-local
+		false,        // no-wait
+		nil,          // args
+	)
+
+	if err != nil {
+		return err
+	}
+
+	go func() {
+		for d := range msgs {
+			err := app.Increment()
+			if err == nil {
+				err := d.Ack(false)
+				if err != nil {
+					log.Printf("Ошибка подтверждения обработку сообщения: %s", err.Error())
+				}
+			} else {
+				log.Printf("Не удалось увеличить число лайков: %s", err.Error())
+			}
+		}
+	}()
+
+	return nil
 }
 
 func (r *Rabbitmq) Close() error {

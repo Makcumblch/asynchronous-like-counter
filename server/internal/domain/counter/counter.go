@@ -1,10 +1,10 @@
 package counter
 
 type Counter struct {
-	likes uint
+	Likes uint
 }
 
 type ICounterRepository interface {
-	Get() uint
-	Increment() uint
+	Get() (uint, error)
+	Increment() error
 }
