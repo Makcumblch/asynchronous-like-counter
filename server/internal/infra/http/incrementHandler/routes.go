@@ -9,7 +9,7 @@ import (
 func InitIncrementRoutes(handler *IncrementHandler) http.Handler {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("POST /api/v1/like/increment", middleware.ErrorMW(handler.Increment))
+	mux.HandleFunc("POST /api/v1/s1/like/increment", middleware.ErrorMW(handler.Increment))
 
 	return mux
 }

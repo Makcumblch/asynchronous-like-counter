@@ -2,6 +2,7 @@ package incrementservice
 
 type IQueue interface {
 	Send() error
+	Close() error
 }
 
 type IncrementService struct {

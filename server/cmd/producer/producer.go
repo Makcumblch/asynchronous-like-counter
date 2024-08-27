@@ -26,7 +26,7 @@ func main() {
 
 	routes := incrementhandler.InitIncrementRoutes(handler)
 
-	server := http.NewServer(config.GetHttp(), routes)
+	server := http.NewServer(config.GetHttp("HTTP_PORT_PRODUCER"), routes)
 	server.Run()
 
 	log.Print("--- Producer service started ---")
