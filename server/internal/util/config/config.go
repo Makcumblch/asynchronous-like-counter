@@ -19,20 +19,24 @@ type RabbitConfig struct {
 }
 
 type MongoConfig struct {
+	User string
+	Pass string
+	IP   string
+	Port string
 }
 
 type IConfig interface {
-	GetHttp() HttpConfig
+	GetHttp(key string) HttpConfig
 	GetRabbit() RabbitConfig
 	GetMongo() MongoConfig
 }
 
 type Config struct{}
 
-func (c *Config) GetHttp() HttpConfig {
-	port, ok := os.LookupEnv("HTTP_PORT")
+func (c *Config) GetHttp(key string) HttpConfig {
+	port, ok := os.LookupEnv(key)
 	if !ok {
-		log.Fatal("Not found env \"HTTP_PORT\"")
+		log.Fatalf("Not found env \"%s\"", key)
 	}
 
 	httpConfig := HttpConfig{
@@ -68,7 +72,28 @@ func (c *Config) GetRabbit() RabbitConfig {
 }
 
 func (c *Config) GetMongo() MongoConfig {
-	mongoConfig := MongoConfig{}
+	user, ok := os.LookupEnv("MONGO_ROOT_USER")
+	if !ok {
+		log.Fatal("Not found env \"MONGO_ROOT_USER\"")
+	}
+	pass, ok := os.LookupEnv("MONGO_ROOT_PASSWORD")
+	if !ok {
+		log.Fatal("Not found env \"MONGO_ROOT_PASSWORD\"")
+	}
+	ip, ok := os.LookupEnv("MONGO_IP")
+	if !ok {
+		log.Fatal("Not found env \"MONGO_IP\"")
+	}
+	port, ok := os.LookupEnv("MONGO_PORT")
+	if !ok {
+		log.Fatal("Not found env \"MONGO_PORT\"")
+	}
+	mongoConfig := MongoConfig{
+		User: user,
+		Pass: pass,
+		IP:   ip,
+		Port: port,
+	}
 	return mongoConfig
 }
 
